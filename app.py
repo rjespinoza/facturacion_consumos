@@ -1,10 +1,11 @@
-import fastexcel
-import io
-import tempfile
 import streamlit as st
 import polars as pl
+import fastexcel  # Usamos fastexcel en lugar de openpyxl
 import bcrypt
+import io
 import os
+import tempfile
+import re
 
 # Función para verificar el usuario y contraseña
 def check_password():
@@ -28,7 +29,7 @@ def check_password():
         return False
     else:
         return True
-
+    
 # Datos de usuario (¡Importante! Cambia esto por un sistema de almacenamiento seguro)
 USUARIO_CORRECTO = "admin"
 PASSWORD_CORRECTO = bcrypt.hashpw("admin".encode("utf-8"), bcrypt.gensalt())
@@ -87,39 +88,39 @@ if check_password():
             # Mostrar los datos filtrados
             st.header("Tablas Generadas. Generando fichero Excel...")
 
-            # Usar fastexcel para crear el archivo Excel
+            # Guardar los datos en Excel con fastexcel
             output = io.BytesIO()
-            workbook = fastexcel.Workbook(output)
-
-            # Hoja 'raw_data' con los datos filtrados
-            sheet_raw_data = workbook.add_worksheet("raw_data")
-            sheet_raw_data.append_row(df_filtered.columns)
-            for row in df_filtered.to_numpy():
-                sheet_raw_data.append_row(row)
-
-            # Hoja 'consumos' con las tablas pivot
-            sheet_consumos = workbook.add_worksheet("consumos")
-
-            def write_dataframe(sheet, df):
-                """Función auxiliar para escribir un DataFrame en la hoja de Excel."""
-                sheet.append_row(df.columns.to_list())
-                for row in df.to_pandas().itertuples(index=False):
-                    sheet.append_row(row)
             
-            sheet_consumos.append_row(["Tabla: Suma de num. dias"])
-            write_dataframe(sheet_consumos, df_pivot_num_dias)
+            # Usamos fastexcel para escribir el archivo Excel
+            with fastexcel.writer(output) as writer:
+                # Hoja 'raw_data' con los datos filtrados
+                worksheet_raw_data = writer.new_sheet('raw_data')
+                worksheet_raw_data.append(list(df_filtered.columns))
+                for row in df_filtered.to_numpy():
+                    worksheet_raw_data.append(list(row))
 
-            sheet_consumos.append_row(["Tabla: Cuenta de CUPS"])
-            write_dataframe(sheet_consumos, df_pivot_cuenta_cups)
+                # Hoja 'consumos' con las tablas pivot
+                worksheet_consumos = writer.new_sheet('consumos')
+                
+                # Función para escribir dataframes
+                def write_dataframe(worksheet, df):
+                    """Escribe un DataFrame en una hoja de Excel."""
+                    worksheet.append(list(df.columns))
+                    for row in df.to_pandas().itertuples(index=False):
+                        worksheet.append(row)
 
-            sheet_consumos.append_row(["Tabla: Suma de kWh"])
-            write_dataframe(sheet_consumos, df_pivot_suma_kwh)
+                worksheet_consumos.append(['Tabla: Suma de num. dias'])
+                write_dataframe(worksheet_consumos, df_pivot_num_dias)
 
-            # Guardar el archivo
-            workbook.save()
+                worksheet_consumos.append(['Tabla: Cuenta de CUPS'])
+                write_dataframe(worksheet_consumos, df_pivot_cuenta_cups)
+
+                worksheet_consumos.append(['Tabla: Suma de kWh'])
+                write_dataframe(worksheet_consumos, df_pivot_suma_kwh)
+
+            output.seek(0)
 
             # Botón para descargar el archivo
-            output.seek(0)
             st.download_button(
                 label="Descargar datos filtrados",
                 data=output,
