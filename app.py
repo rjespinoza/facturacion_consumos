@@ -1,6 +1,6 @@
 import streamlit as st
 import polars as pl
-import fastexcel  # Usamos fastexcel en lugar de openpyxl
+import fastexcel
 import bcrypt
 import io
 import os
@@ -90,9 +90,9 @@ if check_password():
 
             # Guardar los datos en Excel con fastexcel
             output = io.BytesIO()
-            
+
             # Usamos fastexcel para escribir el archivo Excel
-            with fastexcel.writer(output) as writer:
+            with fastexcel.open(output) as writer:
                 # Hoja 'raw_data' con los datos filtrados
                 worksheet_raw_data = writer.new_sheet('raw_data')
                 worksheet_raw_data.append(list(df_filtered.columns))
