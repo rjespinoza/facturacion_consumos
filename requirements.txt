@@ -4,3 +4,4 @@ openpyxl
 bcrypt
 tempfile312
 pyfastexcel
+fastexcel
