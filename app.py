@@ -1,6 +1,10 @@
 import streamlit as st
 import polars as pl
+<<<<<<< HEAD
 from openpyxl import Workbook
+=======
+import fastexcel
+>>>>>>> 3fdfc4625e05feb13d4ca970f1ff4f99e3480f68
 import bcrypt
 import io
 import os
@@ -88,6 +92,7 @@ if check_password():
             # Mostrar los datos filtrados
             st.header("Tablas Generadas. Generando fichero Excel...")
 
+<<<<<<< HEAD
             # Guardar los datos en Excel con openpyxl
             output = io.BytesIO()
 
@@ -122,6 +127,38 @@ if check_password():
 
             # Guardar el archivo
             wb_out.save(output)
+=======
+            # Guardar los datos en Excel con fastexcel
+            output = io.BytesIO()
+
+            # Usamos fastexcel para escribir el archivo Excel
+            with fastexcel.open(output) as writer:
+                # Hoja 'raw_data' con los datos filtrados
+                worksheet_raw_data = writer.new_sheet('raw_data')
+                worksheet_raw_data.append(list(df_filtered.columns))
+                for row in df_filtered.to_numpy():
+                    worksheet_raw_data.append(list(row))
+
+                # Hoja 'consumos' con las tablas pivot
+                worksheet_consumos = writer.new_sheet('consumos')
+                
+                # Función para escribir dataframes
+                def write_dataframe(worksheet, df):
+                    """Escribe un DataFrame en una hoja de Excel."""
+                    worksheet.append(list(df.columns))
+                    for row in df.to_pandas().itertuples(index=False):
+                        worksheet.append(row)
+
+                worksheet_consumos.append(['Tabla: Suma de num. dias'])
+                write_dataframe(worksheet_consumos, df_pivot_num_dias)
+
+                worksheet_consumos.append(['Tabla: Cuenta de CUPS'])
+                write_dataframe(worksheet_consumos, df_pivot_cuenta_cups)
+
+                worksheet_consumos.append(['Tabla: Suma de kWh'])
+                write_dataframe(worksheet_consumos, df_pivot_suma_kwh)
+
+>>>>>>> 3fdfc4625e05feb13d4ca970f1ff4f99e3480f68
             output.seek(0)
 
             # Botón para descargar el archivo

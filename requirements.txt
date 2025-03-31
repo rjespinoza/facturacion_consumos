@@ -3,3 +3,8 @@ polars
 openpyxl
 bcrypt
 tempfile312
+<<<<<<< HEAD
+=======
+pyfastexcel
+fastexcel
+>>>>>>> 3fdfc4625e05feb13d4ca970f1ff4f99e3480f68
