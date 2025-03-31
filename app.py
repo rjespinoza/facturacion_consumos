@@ -1,10 +1,6 @@
 import streamlit as st
 import polars as pl
-<<<<<<< HEAD
 from openpyxl import Workbook
-=======
-import fastexcel
->>>>>>> 3fdfc4625e05feb13d4ca970f1ff4f99e3480f68
 import bcrypt
 import io
 import os
